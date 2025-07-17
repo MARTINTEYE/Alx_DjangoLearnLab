@@ -19,11 +19,11 @@ def books_in_library(library_name):
         return library.books.all()
     except Library.DoesNotExist:
         return "Library not found"
-
 def librarian_for_library(library_name):
     try:
         library = Library.objects.get(name=library_name)
-        return library.librarian
+        librarian = Librarian.objects.get(library=library)  # <-- required line!
+        return librarian
     except Library.DoesNotExist:
         return "Library not found"
     except Librarian.DoesNotExist:
