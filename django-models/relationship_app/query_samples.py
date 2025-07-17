@@ -1,16 +1,35 @@
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_models.settings')
+django.setup()
+
 from relationship_app.models import Author, Book, Library, Librarian
 
-# 1. Query all books by a specific author (e.g., author with id=1)
-books_by_author = Book.objects.filter(author_id=1)
+def books_by_author(author_name):
+    try:
+        author = Author.objects.get(name=author_name)
+        return author.books.all()
+    except Author.DoesNotExist:
+        return "Author not found"
 
-# 2. List all books in a library (e.g., library with id=1)
-library = Library.objects.get(id=1)
-books_in_library = library.books.all()
+def books_in_library(library_name):
+    try:
+        library = Library.objects.get(name=library_name)
+        return library.books.all()
+    except Library.DoesNotExist:
+        return "Library not found"
 
-# 3. Retrieve the librarian for a library (e.g., library with id=1)
-librarian = Librarian.objects.get(library_id=1)
+def librarian_for_library(library_name):
+    try:
+        library = Library.objects.get(name=library_name)
+        return library.librarian
+    except Library.DoesNotExist:
+        return "Library not found"
+    except Librarian.DoesNotExist:
+        return "No librarian assigned"
 
-# Display results
-print("Books by Author:", books_by_author)
-print("Books in Library:", books_in_library)
-print("Librarian:", librarian.name)
+if __name__ == "__main__":
+    print("Books by author:", books_by_author("John Doe"))
+    print("Books in library:", books_in_library("Central Library"))
+    print("Librarian:", librarian_for_library("Central Library"))
