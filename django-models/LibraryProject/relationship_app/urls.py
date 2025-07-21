@@ -14,3 +14,9 @@ urlpatterns = [
     path('edit_book/<int:pk>/', views.edit_book, name='edit_book'),
     path('delete_book/<int:pk>/', views.delete_book, name='delete_book'),
 ]
+from .views import BookDetailView
+
+urlpatterns = [
+    # other paths...
+    path('books/<int:pk>/', BookDetailView.as_view(), name='book_detail'),
+]
