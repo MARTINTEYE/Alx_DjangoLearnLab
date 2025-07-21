@@ -1,16 +1,14 @@
 <!-- templates/relationship_app/register.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-</head>
-<body>
-    <h1>Create an Account</h1>
+{% extends "relationship_app/base.html" %}
+
+{% block content %}
+<div style="max-width: 500px; margin: auto; padding: 20px;">
+    <h2 style="text-align: center;">Create an Account</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Register</button>
+        <button type="submit" style="width: 100%; padding: 10px;">Register</button>
     </form>
-    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
-</body>
-</html>
+    <p style="text-align: center;">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+</div>
+{% endblock %}
