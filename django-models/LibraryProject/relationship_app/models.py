@@ -8,13 +8,19 @@ class Author(models.Model):
     def __str__(self):
         return self.name
 
-# Book model
+# Book model with Meta class for custom permissions
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        permissions = [
+            ("can_edit_book", "Can edit book"),
+            ("can_view_book", "Can view book"),
+        ]
 
 # Library model
 class Library(models.Model):
