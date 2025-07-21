@@ -1,12 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import permission_required  # Required for the checker
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
-from .models import Library, Book, UserProfile
-from .forms import BookForm  # Make sure you have this form
 
+from .models import Library, Book, UserProfile
+from .forms import BookForm  # Ensure this form exists in forms.py
+
+
+# ------------------------------
 # Role-based access checks
+# ------------------------------
+
 def is_admin(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
@@ -16,7 +23,11 @@ def is_librarian(user):
 def is_member(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
+
+# ------------------------------
 # Role-based views
+# ------------------------------
+
 @login_required
 @user_passes_test(is_admin)
 def admin_view(request):
@@ -32,7 +43,11 @@ def librarian_view(request):
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
 
-# Registration view using Django's built-in form
+
+# ------------------------------
+# Registration View
+# ------------------------------
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -44,7 +59,11 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'relationship_app/register.html', {'form': form})
 
-# Book permission views
+
+# ------------------------------
+# Book Views with Permissions
+# ------------------------------
+
 @permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
     if request.method == 'POST':
@@ -76,18 +95,20 @@ def delete_book(request, pk):
         return redirect('list_books')
     return render(request, 'relationship_app/delete_book.html', {'book': book})
 
-# List all books
+
+# ------------------------------
+# Book and Library Views
+# ------------------------------
+
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
 
-# Detail view for Library
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
-# Detail view for Book
 class BookDetailView(DetailView):
     model = Book
     template_name = 'relationship_app/book_detail.html'
