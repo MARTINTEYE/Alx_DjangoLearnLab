@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import UserProfile
-from django.views.generic import DetailView
-from .models import Library
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
+from django.views.generic.detail import DetailView
+from .models import Library, Book, UserProfile
 
+# Role-based access control
 def is_admin(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Admin'
 
@@ -13,6 +13,7 @@ def is_librarian(user):
 def is_member(user):
     return hasattr(user, 'userprofile') and user.userprofile.role == 'Member'
 
+# Role-based views
 @login_required
 @user_passes_test(is_admin)
 def admin_view(request):
@@ -28,36 +29,29 @@ def librarian_view(request):
 def member_view(request):
     return render(request, 'relationship_app/member_view.html')
 
-
-from django.shortcuts import render
-
+# Registration view
 def register(request):
     return render(request, 'register.html')
 
-from django.contrib.auth.decorators import permission_required
-
+# Book permission views
 @permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
-    # Logic to add a book
-    pass
+    pass  # Logic to add a book
 
 @permission_required('relationship_app.can_change_book', raise_exception=True)
 def edit_book(request, pk):
-    # Logic to edit a book
-    pass
+    pass  # Logic to edit a book
 
 @permission_required('relationship_app.can_delete_book', raise_exception=True)
 def delete_book(request, pk):
-    # Logic to delete a book
-    pass
-from django.shortcuts import render
-from .models import Book
+    pass  # Logic to delete a book
 
+# Function-based book list view
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
 
-
+# Class-based views using DetailView
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
@@ -65,5 +59,5 @@ class LibraryDetailView(DetailView):
 
 class BookDetailView(DetailView):
     model = Book
-    template_name = 'relationship_app/book_detail.html'  # Create this template
+    template_name = 'relationship_app/book_detail.html'
     context_object_name = 'book'
