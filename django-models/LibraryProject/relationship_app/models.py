@@ -8,7 +8,7 @@ class Author(models.Model):
     def __str__(self):
         return self.name
 
-# Book model with Meta class for custom permissions
+# Book model with custom permissions
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
@@ -18,8 +18,9 @@ class Book(models.Model):
 
     class Meta:
         permissions = [
-            ("can_edit_book", "Can edit book"),
-            ("can_view_book", "Can view book"),
+            ("can_add_book", "Can add book"),
+            ("can_change_book", "Can change book"),
+            ("can_delete_book", "Can delete book"),
         ]
 
 # Library model
@@ -39,7 +40,7 @@ class Librarian(models.Model):
     def __str__(self):
         return self.name
 
-# UserProfile model with role field
+# UserProfile model with roles
 class UserProfile(models.Model):
     ROLE_CHOICES = [
         ('Admin', 'Admin'),
