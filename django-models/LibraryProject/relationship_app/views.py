@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from .models import Library, Book, UserProfile
+from .forms import BookForm  # Make sure you have this form
 
 # Role-based access checks
 def is_admin(user):
@@ -38,7 +39,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('list_books')  # Redirect after successful registration
+            return redirect('list_books')
     else:
         form = UserCreationForm()
     return render(request, 'relationship_app/register.html', {'form': form})
@@ -46,31 +47,47 @@ def register(request):
 # Book permission views
 @permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
-    # Add book logic goes here
-    return render(request, 'relationship_app/add_book.html')
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list_books')
+    else:
+        form = BookForm()
+    return render(request, 'relationship_app/add_book.html', {'form': form})
 
 @permission_required('relationship_app.can_change_book', raise_exception=True)
 def edit_book(request, pk):
-    # Edit book logic goes here
-    return render(request, 'relationship_app/edit_book.html', {'pk': pk})
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect('list_books')
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'relationship_app/edit_book.html', {'form': form})
 
 @permission_required('relationship_app.can_delete_book', raise_exception=True)
 def delete_book(request, pk):
-    # Delete book logic goes here
-    return render(request, 'relationship_app/delete_book.html', {'pk': pk})
+    book = get_object_or_404(Book, pk=pk)
+    if request.method == 'POST':
+        book.delete()
+        return redirect('list_books')
+    return render(request, 'relationship_app/delete_book.html', {'book': book})
 
-# Function-based view to list all books
+# List all books
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
 
-# Detail view for a single Library
+# Detail view for Library
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
-# Detail view for a single Book
+# Detail view for Book
 class BookDetailView(DetailView):
     model = Book
     template_name = 'relationship_app/book_detail.html'
