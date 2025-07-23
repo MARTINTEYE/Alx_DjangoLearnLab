@@ -18,7 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'relationship_app',     # Your app name
+    'relationship_app',   
 ]
 
 # 2. Middleware (usually already set up)
