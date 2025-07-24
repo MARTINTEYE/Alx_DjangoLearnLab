@@ -105,3 +105,51 @@ STATIC_URL = 'static/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# SECURITY SETTINGS
+
+# Never run with DEBUG=True in production!
+DEBUG = False
+
+# Use secure cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Protect against XSS
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Prevent clickjacking
+X_FRAME_OPTIONS = 'DENY'
+
+# Force HTTPS (if deployed with SSL)
+SECURE_SSL_REDIRECT = True
+
+# Content Security Policy (optional if using django-csp)
+# CSP_DEFAULT_SRC = ("'self'",)
+# CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')
+# CSP_SCRIPT_SRC = ("'self'",)
+
+MIDDLEWARE += ['csp.middleware.CSPMiddleware']
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')
+CSP_SCRIPT_SRC = ("'self'",)
+
+# SECURITY SETTINGS
+
+DEBUG = False  #  Never run with DEBUG=True in production
+
+SESSION_COOKIE_SECURE = True  #  Sends session cookies only over HTTPS
+CSRF_COOKIE_SECURE = True     #  Sends CSRF cookies only over HTTPS
+
+SECURE_BROWSER_XSS_FILTER = True         #  Enables the browser's XSS filter
+SECURE_CONTENT_TYPE_NOSNIFF = True       #  Prevents browser MIME-type sniffing
+X_FRAME_OPTIONS = 'DENY'                 #  Protects against clickjacking by denying framing
+SECURE_SSL_REDIRECT = True               #  Redirects all HTTP requests to HTTPS
+
+# Optional: CSP settings if using django-csp middleware
+# CSP_DEFAULT_SRC = ("'self'",)               #  Allows content only from this domain
+# CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')  #  Allows safe external styles
+# CSP_SCRIPT_SRC = ("'self'",)                #  Restricts JS sources
+
