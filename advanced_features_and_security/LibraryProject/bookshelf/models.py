@@ -24,7 +24,7 @@ class CustomUserManager(BaseUserManager):
 
         return self.create_user(username, email, password, **extra_fields)
 
-# ✅ ADD THIS PART:
+# Custom User Model
 class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
@@ -33,3 +33,20 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+#  Book Model with Custom Permissions
+class Book(models.Model):
+    title = models.CharField(max_length=255)
+    author = models.CharField(max_length=255)
+    published_date = models.DateField()
+
+    class Meta:
+        permissions = [
+            ("can_create", "Can create books"),
+            ("can_edit", "Can edit books"),
+            ("can_delete", "Can delete books"),
+            ("can_view", "Can view books"),
+        ]
+
+    def __str__(self):
+        return self.title
