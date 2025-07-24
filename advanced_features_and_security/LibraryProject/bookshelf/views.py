@@ -2,6 +2,9 @@ from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render, get_object_or_404
 from .models import Book
 from django.db.models import Q
+from .forms import ExampleForm
+
+
 @permission_required('bookshelf.can_view', raise_exception=True)
 def view_books(request):
     books = Book.objects.all()
@@ -43,3 +46,16 @@ def form_example_view(request):
             form.save()
     
     return render(request, 'bookshelf/form_example.html', {'form': form})
+
+from django.shortcuts import render, redirect
+from .forms import ExampleForm  # Import the ExampleForm class
+
+def example_view(request):
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # Process the form data
+            return redirect('success_url')
+    else:
+        form = ExampleForm()
+    return render(request, 'bookshelf/example_form.html', {'form': form})
