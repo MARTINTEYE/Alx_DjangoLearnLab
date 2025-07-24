@@ -122,3 +122,9 @@ X_FRAME_OPTIONS = 'DENY'
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", 'https://fonts.googleapis.com')
 CSP_SCRIPT_SRC = ("'self'",)
+
+# Enforce HTTPS redirect
+SECURE_SSL_REDIRECT = True
+
+# Trust headers from proxy server for SSL detection
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
