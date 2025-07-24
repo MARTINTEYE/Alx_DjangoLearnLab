@@ -38,6 +38,9 @@ INSTALLED_APPS = [
 #  FIXED: Custom user model path
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
