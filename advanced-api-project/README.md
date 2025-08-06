@@ -15,3 +15,19 @@
 # Notes
 - Custom validation ensures `publication_year` is not in the future.
 - Views are implemented using DRF's generic views for maintainability.
+
+### 📘 API Query Capabilities for /books/
+
+You can perform the following actions on `/api/books/`:
+
+**Filtering:**
+- `/api/books/?title=BookName`
+- `/api/books/?author=AuthorName`
+- `/api/books/?publication_year=2020`
+
+**Search:**
+- `/api/books/?search=keyword`
+
+**Ordering:**
+- `/api/books/?ordering=title`
+- `/api/books/?ordering=-publication_year`

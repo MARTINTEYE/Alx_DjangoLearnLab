@@ -1,20 +1,29 @@
 from rest_framework import generics, permissions
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Book
 from .serializers import BookSerializer
 
-#  List all books (Read Only - open to all)
+
+#  List all books — Open to all with search, filter, and ordering
 class BookListView(generics.ListAPIView):
     """
-    List all books.
+    List all books with filtering, searching, and ordering.
     Accessible by both authenticated and unauthenticated users.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
+
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['title', 'author', 'publication_year']
+    search_fields = ['title', 'author']
+    ordering_fields = ['title', 'publication_year']
+    ordering = ['title']
 
 
-#  Retrieve a specific book by ID (Read Only)
+#  Retrieve a single book — Open to all
 class BookDetailView(generics.RetrieveAPIView):
     """
     Retrieve a single book by ID.
@@ -22,10 +31,10 @@ class BookDetailView(generics.RetrieveAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
 
 
-#  Create a new book (Authenticated users only)
+#  Create book — Authenticated users only
 class BookCreateView(generics.CreateAPIView):
     """
     Create a new book.
@@ -33,18 +42,13 @@ class BookCreateView(generics.CreateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        """
-        Customize behavior when creating a book.
-        If Book model had a created_by field, you could assign:
-        serializer.save(created_by=self.request.user)
-        """
         serializer.save()
 
 
-#  Update an existing book (Authenticated users only)
+# Update book — Authenticated users only
 class BookUpdateView(generics.UpdateAPIView):
     """
     Update an existing book.
@@ -52,16 +56,13 @@ class BookUpdateView(generics.UpdateAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def perform_update(self, serializer):
-        """
-        Customize behavior during book update.
-        """
         serializer.save()
 
 
-#  Delete a book (Authenticated users only)
+#  Delete book — Authenticated users only
 class BookDeleteView(generics.DestroyAPIView):
     """
     Delete a book.
@@ -69,4 +70,4 @@ class BookDeleteView(generics.DestroyAPIView):
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
