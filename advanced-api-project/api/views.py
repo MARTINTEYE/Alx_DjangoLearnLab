@@ -1,56 +1,66 @@
-from django.shortcuts import render
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, permissions, filters
+from rest_framework import generics, filters, permissions
+from django_filters import rest_framework as drf_filters
 from .models import Book
 from .serializers import BookSerializer
 
-# DRF API views
-class BookListView(generics.ListAPIView):
+
+# Custom permissions example: only admin can create/update/delete
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user and request.user.is_staff
+
+
+# Filter class for books
+class BookFilter(drf_filters.FilterSet):
+    class Meta:
+        model = Book
+        fields = {
+            'title': ['exact', 'icontains'],
+            'author': ['exact', 'icontains'],
+            'publication_year': ['exact', 'gte', 'lte'],
+        }
+
+
+# List and Filter Books
+class BookList(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['title', 'author__name']
-    search_fields = ['title', 'author__name', 'description']
-    ordering_fields = ['title', 'publication_date']
+    filter_backends = [
+        drf_filters.DjangoFilterBackend,
+        filters.OrderingFilter,
+        filters.SearchFilter
+    ]
+    filterset_class = BookFilter
+    ordering_fields = ['title', 'author', 'publication_year']
+    search_fields = ['title', 'author']
     permission_classes = [permissions.AllowAny]
 
-class BookDetailView(generics.RetrieveAPIView):
+
+# Detail View
+class BookDetail(generics.RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.AllowAny]
 
-class BookCreateView(generics.CreateAPIView):
+
+# Create View
+class BookCreate(generics.CreateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
 
-class BookUpdateView(generics.UpdateAPIView):
+
+# Update View
+class BookUpdate(generics.UpdateAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
 
-class BookDeleteView(generics.DestroyAPIView):
+
+# Delete View
+class BookDelete(generics.DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-# HTML views (to satisfy checker)
-class BookDetailHTMLView(DetailView):
-    model = Book
-    template_name = "book_detail.html"
-
-class BookCreateHTMLView(CreateView):
-    model = Book
-    fields = ['title', 'author', 'description', 'publication_date']
-    template_name = "book_form.html"
-
-class BookUpdateHTMLView(UpdateView):
-    model = Book
-    fields = ['title', 'author', 'description', 'publication_date']
-    template_name = "book_form.html"
-
-class BookDeleteHTMLView(DeleteView):
-    model = Book
-    template_name = "book_confirm_delete.html"
-    success_url = "/"
+    permission_classes = [IsAdminOrReadOnly]
