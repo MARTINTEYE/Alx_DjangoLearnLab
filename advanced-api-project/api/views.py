@@ -2,11 +2,11 @@ from rest_framework import generics, filters, permissions
 from django_filters import rest_framework as drf_filters
 from .models import Book
 from .serializers import BookSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 
-# ------------------------------
+
 # Custom permission: Authenticated users can write, others read-only
-# ------------------------------
 class IsAuthenticatedOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow authenticated users to create, update, or delete.
@@ -18,9 +18,8 @@ class IsAuthenticatedOrReadOnly(permissions.BasePermission):
         return request.user and request.user.is_authenticated
 
 
-# ------------------------------
+
 # Filter setup for Book model
-# ------------------------------
 class BookFilter(drf_filters.FilterSet):
     class Meta:
         model = Book
@@ -31,9 +30,7 @@ class BookFilter(drf_filters.FilterSet):
         }
 
 
-# ------------------------------
 # Generic API Views
-# ------------------------------
 
 # List all books
 class BookListView(generics.ListAPIView):
@@ -110,3 +107,13 @@ class BookDeleteView(generics.DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+class BookList(generics.ListCreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+class BookDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
