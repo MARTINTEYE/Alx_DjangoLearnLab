@@ -4,15 +4,23 @@ from .models import Book
 from .serializers import BookSerializer
 
 
-# Custom permissions example: only admin can create/update/delete
-class IsAdminOrReadOnly(permissions.BasePermission):
+# ------------------------------
+# Custom permission: Authenticated users can write, others read-only
+# ------------------------------
+class IsAuthenticatedOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow authenticated users to create, update, or delete.
+    Read-only methods (GET, HEAD, OPTIONS) are open to all.
+    """
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user and request.user.is_staff
+        return request.user and request.user.is_authenticated
 
 
-# Filter class for books
+# ------------------------------
+# Filter setup for Book model
+# ------------------------------
 class BookFilter(drf_filters.FilterSet):
     class Meta:
         model = Book
@@ -23,44 +31,82 @@ class BookFilter(drf_filters.FilterSet):
         }
 
 
-# List and Filter Books
-class BookList(generics.ListAPIView):
+# ------------------------------
+# Generic API Views
+# ------------------------------
+
+# List all books
+class BookListView(generics.ListAPIView):
+    """
+    GET: List all books with filtering, searching, and ordering.
+    Accessible by everyone.
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = [permissions.AllowAny]
     filter_backends = [
         drf_filters.DjangoFilterBackend,
-        filters.OrderingFilter,
-        filters.SearchFilter
+        filters.SearchFilter,
+        filters.OrderingFilter
     ]
     filterset_class = BookFilter
-    ordering_fields = ['title', 'author', 'publication_year']
     search_fields = ['title', 'author']
-    permission_classes = [permissions.AllowAny]
+    ordering_fields = ['title', 'publication_year']
+    ordering = ['title']
 
 
-# Detail View
-class BookDetail(generics.RetrieveAPIView):
+# Retrieve one book
+class BookDetailView(generics.RetrieveAPIView):
+    """
+    GET: Retrieve a single book by ID.
+    Accessible by everyone.
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.AllowAny]
 
 
-# Create View
-class BookCreate(generics.CreateAPIView):
+# Create a new book
+class BookCreateView(generics.CreateAPIView):
+    """
+    POST: Create a new book.
+    Authenticated users only.
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        """
+        Custom behavior during creation.
+        Could link the current user if model has a created_by field.
+        """
+        serializer.save()
 
 
-# Update View
-class BookUpdate(generics.UpdateAPIView):
+# Update an existing book
+class BookUpdateView(generics.UpdateAPIView):
+    """
+    PUT/PATCH: Update an existing book.
+    Authenticated users only.
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_update(self, serializer):
+        """
+        Custom behavior during update.
+        """
+        serializer.save()
 
 
-# Delete View
-class BookDelete(generics.DestroyAPIView):
+# Delete a book
+class BookDeleteView(generics.DestroyAPIView):
+    """
+    DELETE: Remove a book.
+    Authenticated users only.
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
