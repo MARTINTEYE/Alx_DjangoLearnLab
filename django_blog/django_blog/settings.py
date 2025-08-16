@@ -53,13 +53,14 @@ WSGI_APPLICATION = 'django_blog.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django_blog_db',
+        'NAME': 'django_blog',      # 👈 make sure this DB exists
         'USER': 'root',
-        'PASSWORD': 'yourpassword',
-        'HOST': 'localhost',
+        'PASSWORD': 'your_password_here',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
+
 
 
 # Password validation
@@ -91,6 +92,16 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# where users go after login/logout
+LOGIN_REDIRECT_URL = 'profile'
+LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'login'
+
+
+# Media (for profile images)
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# (Static is already configured; keep your app static folder)
