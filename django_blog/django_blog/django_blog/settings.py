@@ -117,6 +117,18 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Add this if you want a central place for static
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+TEMPLATES = [
+    {
+        ...
+        'DIRS': [BASE_DIR / "templates"],  # project-level templates if needed
+        ...
+    },
+]
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
