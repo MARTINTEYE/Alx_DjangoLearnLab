@@ -1,12 +1,9 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
-from .models import Profile
 
+# Example signal: automatically create a profile when a user is created
 @receiver(post_save, sender=User)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
+def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
-    else:
-        # ensure profile exists (e.g., for existing users)
-        Profile.objects.get_or_create(user=instance)
+        print(f"New user created: {instance.username}")  # Replace with real logic
