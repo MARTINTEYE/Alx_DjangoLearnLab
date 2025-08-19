@@ -10,3 +10,4 @@ POST to `/api/auth/token/` with:
 Returns:
 ```json
 {"token": "your_token_here"}
+
