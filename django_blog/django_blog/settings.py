@@ -86,13 +86,13 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+# Static files settings
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "blog" / "static"]  # Development
+STATIC_ROOT = BASE_DIR / "staticfiles"             # For collectstatic (production)
 
-# Optional global static folder
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # where users go after login/logout
