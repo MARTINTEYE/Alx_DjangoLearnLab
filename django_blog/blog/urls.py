@@ -2,17 +2,15 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
+app_name = "blog"  # Optional: namespacing
+
 urlpatterns = [
-    # Home (optional landing)
-    path("", views.home, name="home"),
+    # Home or index page
+    path("", views.index, name="index"),
 
-    # Auth: login/logout (built-in views)
+    # Authentication
     path("login/", auth_views.LoginView.as_view(template_name="blog/auth/login.html"), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-
-    # Register (custom)
+    path("logout/", auth_views.LogoutView.as_view(next_page='blog:login'), name="logout"),  # Redirect after logout
     path("register/", views.register, name="register"),
-
-    # Profile (view/update)
     path("profile/", views.profile, name="profile"),
 ]

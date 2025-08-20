@@ -85,3 +85,5 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, Jav
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "blog" / "static"]  # your app-level static folder
