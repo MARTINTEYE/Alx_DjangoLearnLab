@@ -1,0 +1,11 @@
+<!-- templates/blog/navbar.html -->
+<form method="GET" action="{% url 'blog:search-posts' %}" class="d-flex">
+    <input 
+        type="text" 
+        name="q" 
+        placeholder="Search posts..." 
+        value="{{ request.GET.q|default:'' }}" 
+        class="form-control me-2"
+    >
+    <button type="submit" class="btn btn-outline-success">Search</button>
+</form>

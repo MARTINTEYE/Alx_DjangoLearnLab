@@ -1,16 +1,17 @@
+# blog/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
+from django.db.models import Q
 from .forms import RegisterForm, ProfileForm, UserUpdateForm, PostForm, CommentForm
-from .models import Post, Comment
+from .models import Post, Comment, Tag
 
 # ------------------------
 # Home / Index / Auth Views
 # ------------------------
-
 def home(request):
     return render(request, "blog/home.html")
 
@@ -42,14 +43,12 @@ def profile(request):
         messages.success(request, "Profile updated successfully.")
         return redirect("blog:profile")
 
-    context = {"u_form": u_form, "p_form": p_form}
-    return render(request, "blog/auth/profile.html", context)
+    return render(request, "blog/auth/profile.html", {"u_form": u_form, "p_form": p_form})
 
 
 # ------------------------
 # Blog Post CRUD Views
 # ------------------------
-
 class PostListView(ListView):
     model = Post
     template_name = "blog/post_list.html"
@@ -89,7 +88,6 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # ------------------------
 # Comment CRUD Views
 # ------------------------
-
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
     form_class = CommentForm
@@ -116,6 +114,7 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
+
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Comment
     template_name = "blog/comments/comment_confirm_delete.html"
@@ -125,3 +124,23 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
+
+
+# ------------------------
+# Tagging & Search Views
+# ------------------------
+def posts_by_tag(request, tag_name):
+    tag = Tag.objects.filter(name=tag_name).first()
+    posts = tag.posts.all() if tag else Post.objects.none()
+    return render(request, "blog/post_list.html", {"posts": posts, "filter_tag": tag_name})
+
+def search_posts(request):
+    query = request.GET.get("q", "")
+    posts = Post.objects.none()
+    if query:
+        posts = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct()
+    return render(request, "blog/search_results.html", {"posts": posts, "query": query})

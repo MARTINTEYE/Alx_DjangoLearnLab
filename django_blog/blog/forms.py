@@ -1,10 +1,12 @@
+# blog/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile
-from .models import Post
-from .models import Comment
+from .models import Profile, Post, Comment, Tag
 
+# ------------------------
+# User Forms
+# ------------------------
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
@@ -19,10 +21,6 @@ class RegisterForm(UserCreationForm):
             user.save()
         return user
 
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ["bio", "photo"]
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
@@ -30,20 +28,51 @@ class UserUpdateForm(forms.ModelForm):
         fields = ["email", "first_name", "last_name"]
 
 
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ["bio", "photo"]
+
+
+# ------------------------
+# Post Form with Tags
+# ------------------------
 class PostForm(forms.ModelForm):
+    tags = forms.CharField(
+        required=False,
+        help_text="Add comma-separated tags",
+        widget=forms.TextInput(attrs={"placeholder": "e.g. Django, Python"})
+    )
+
     class Meta:
         model = Post
-        fields = ["title", "content"]
+        fields = ["title", "content", "tags"]
+
+    def save(self, commit=True):
+        post = super().save(commit=False)
+        if commit:
+            post.save()
+            # Process tags
+            tag_names = self.cleaned_data.get("tags", "")
+            if tag_names:
+                tag_list = [name.strip() for name in tag_names.split(",") if name.strip()]
+                post.tags.clear()
+                for tag_name in tag_list:
+                    tag, created = Tag.objects.get_or_create(name=tag_name)
+                    post.tags.add(tag)
+        return post
 
 
-
+# ------------------------
+# Comment Form
+# ------------------------
 class CommentForm(forms.ModelForm):
     content = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Add a comment...'}),
+        widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Add a comment..."}),
         max_length=1000,
         label=""
     )
 
     class Meta:
         model = Comment
-        fields = ['content']
+        fields = ["content"]
