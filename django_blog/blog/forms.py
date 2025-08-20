@@ -3,6 +3,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile, Post, Comment, Tag
+from taggit.forms import TagWidget
+
 
 # ------------------------
 # User Forms
@@ -38,15 +40,13 @@ class ProfileForm(forms.ModelForm):
 # Post Form with Tags
 # ------------------------
 class PostForm(forms.ModelForm):
-    tags = forms.CharField(
-        required=False,
-        help_text="Add comma-separated tags",
-        widget=forms.TextInput(attrs={"placeholder": "e.g. Django, Python"})
-    )
-
     class Meta:
         model = Post
         fields = ["title", "content", "tags"]
+        widgets = {
+            "tags": TagWidget(attrs={"placeholder": "Add tags separated by commas"})
+        }
+
 
     def save(self, commit=True):
         post = super().save(commit=False)
