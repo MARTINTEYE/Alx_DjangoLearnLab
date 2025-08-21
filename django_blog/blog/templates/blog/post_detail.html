@@ -44,3 +44,6 @@
     No tags
 {% endfor %}
 </p>
+{% for tag in post.tags.all %}
+  <a href="{% url 'blog:post_by_tag' tag.slug %}">#{{ tag.name }}</a>
+{% endfor %}
