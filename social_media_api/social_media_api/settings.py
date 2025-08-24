@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-secret-key-for-dev")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False   # <-- required for your test
+DEBUG = False   # <-- Required for production
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'rest_framework.authtoken',
+    'storages',  # Required for AWS S3
 
     # Local apps
     'accounts',
@@ -70,7 +71,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'social_media_api.wsgi.application'
 
 
-# Database (SQLite for dev, PostgreSQL/MySQL for production)
+# Database (PostgreSQL/MySQL for production, SQLite fallback for dev)
 DATABASES = {
     'default': {
         'ENGINE': os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
@@ -99,12 +100,34 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static & Media
+# Static & Media (with AWS S3 option for production)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
+
+# AWS S3 storage for static & media (optional)
+if os.getenv("USE_S3", "False") == "True":
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "us-east-1")
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+
+    # Static files (CSS, JS)
+    STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+
+    # Media files (user uploads)
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+
+
+# Security Settings (Required in production)
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_SSL_REDIRECT = True
 
 
 # Default primary key field type
